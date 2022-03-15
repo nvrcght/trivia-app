@@ -1,4 +1,5 @@
 import os
+import json
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -16,16 +17,38 @@ def create_app(test_config=None):
     """
     @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
     """
+    CORS(app)
+    # CORS(app, resources={r"*/api/*": {"origins": '*'}})
 
     """
     @TODO: Use the after_request decorator to set Access-Control-Allow
     """
+    # @app.after_request
+    # def after_request(response):
+    #     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    #     response.headers.add('Access-Control-Allow-Mothods', 'GET, POST, DELETE')
+    #     return response
+        
 
-    """
-    @TODO:
-    Create an endpoint to handle GET requests
-    for all available categories.
-    """
+
+    @app.route('/categories', methods=['GET'])
+    def get_categories():
+        categories = Category.query.all()
+        res = {'categories':
+            {cat.id: cat.type for cat in categories}
+        }
+        return jsonify(res)
+
+    @app.route('/questions', methods=['GET'])
+    def get_questions():
+        page = request.args.get('page', 1, int)
+        starting_question = (page-1) * QUESTIONS_PER_PAGE
+        questions = Question.query.order_by(Question.id).all()[starting_question: starting_question + QUESTIONS_PER_PAGE]
+        questions_data = [question.format() for question in questions]
+        
+        res = {'totalQuestions': Question.query.count()}
+        res.update({"questions": questions_data, "categories": ["A", "B"], "currentCategory":"foo"})
+        return jsonify(res)
 
 
     """
@@ -48,7 +71,17 @@ def create_app(test_config=None):
     TEST: When you click the trash icon next to a question, the question will be removed.
     This removal will persist in the database and when you refresh the page.
     """
-
+    @app.route('/questions/<id>', methods=["DELETE"])
+    def delete_question(id):
+        question = Question.query.get(id)
+        if question:
+            try:
+                question.delete()
+                return jsonify({"status": "success"})
+            except:
+                return jsonify({"status": "failure"})
+        else:
+            return jsonify({"status": "failure"})
     """
     @TODO:
     Create an endpoint to POST a new question,
@@ -59,6 +92,16 @@ def create_app(test_config=None):
     the form will clear and the question will appear at the end of the last page
     of the questions list in the "List" tab.
     """
+    @app.route('/questions', methods=["POST"])
+    def add_question():
+        data = json.loads(request.data)
+        question = Question(**data)
+        try:
+            question.insert()
+            return jsonify({"status": "success", "question_id": f"{question.id}"})
+        except:
+            question.rollback()
+            return jsonify({"status": "failure"})
 
     """
     @TODO:
@@ -79,7 +122,26 @@ def create_app(test_config=None):
     categories in the left column will cause only questions of that
     category to be shown.
     """
+    @app.route('/categories/<id>/questions')
+    def question_per_category(id):
+        query = Question.query.filter(Question.category==id).all()
+        if query:
+            questions = [q.format() for q in query]
+            res = {
+                "questions": questions,
+                "totalQuestions": Question.query.count(),
+                "currentCategory": "History"
 
+            }
+            return jsonify(res)
+        else:
+            # TODO add error handling
+            res = {
+                "error": "True"
+            }
+            return jsonify(res)
+
+        
     """
     @TODO:
     Create a POST endpoint to get questions to play the quiz.
@@ -99,4 +161,3 @@ def create_app(test_config=None):
     """
 
     return app
-
