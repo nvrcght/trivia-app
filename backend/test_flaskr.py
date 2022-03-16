@@ -100,7 +100,7 @@ class TriviaTestCase(unittest.TestCase):
         data.update({"searchTerm": "Who"})
         res = self.client().post('/questions', data=json.dumps(data))  
         self.assertEqual(res.status_code, 200)
-        num_questions = json.loads(res.data)["numQuestions"]
+        num_questions = json.loads(res.data)["total_questions"]
         self.assertEqual(num_questions, 3)
        
 
