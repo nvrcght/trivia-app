@@ -95,13 +95,18 @@ def create_app(test_config=None):
     @app.route('/questions', methods=["POST"])
     def add_question():
         data = json.loads(request.data)
-        question = Question(**data)
-        try:
-            question.insert()
-            return jsonify({"status": "success", "question_id": f"{question.id}"})
-        except:
-            question.rollback()
-            return jsonify({"status": "failure"})
+        if "searchTerm" in data:
+            term = data["searchTerm"]
+            questions = Question.query.filter(Question.question.ilike(f'%{term}%')).all()
+            return jsonify({"status": "success", "numQuestions": len(questions)})
+        else:
+            question = Question(**data)
+            try:
+                question.insert()
+                return jsonify({"status": "success", "question_id": f"{question.id}"})
+            except:
+                question.rollback()
+                return jsonify({"status": "failure"})
 
     """
     @TODO:
@@ -113,6 +118,9 @@ def create_app(test_config=None):
     only question that include that string within their question.
     Try using the word "title" to start.
     """
+
+        
+        
 
     """
     @TODO:

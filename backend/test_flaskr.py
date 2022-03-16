@@ -33,12 +33,12 @@ class TriviaTestCase(unittest.TestCase):
     @staticmethod
     def _mock_question_data():
         """Helper method to generate mock data"""
-        return json.dumps({
+        return {
             "question": "Heres a new question string",
             "answer": "Heres a new answer string",
             "difficulty": 1,
             "category": 3
-        })   
+        } 
 
     def test_get_categories(self):
         res = self.client().get('/categories')
@@ -76,7 +76,7 @@ class TriviaTestCase(unittest.TestCase):
     
     def test_delete_question(self):
         """Creates a new record and tests delete question endpoint"""
-        data = TriviaTestCase._mock_question_data()
+        data = TriviaTestCase._mock_question_data() 
         new_question = Question(**data)
         new_question.insert()
 
@@ -88,12 +88,20 @@ class TriviaTestCase(unittest.TestCase):
         self.assertIsNone(Question.query.get(q_id))
 
     def test_add_question(self):
-        data = TriviaTestCase._mock_question_data()
+        data = json.dumps(TriviaTestCase._mock_question_data())
         res = self.client().post('/questions', data=data)
         new_question_id = json.loads(res.data)["question_id"]
         inserted_question = Question.query.get(new_question_id)
         self.assertIsInstance(inserted_question, Question)
         inserted_question.delete()
+
+    def test_search_question(self):
+        data = TriviaTestCase._mock_question_data()
+        data.update({"searchTerm": "Who"})
+        res = self.client().post('/questions', data=json.dumps(data))  
+        self.assertEqual(res.status_code, 200)
+        num_questions = json.loads(res.data)["numQuestions"]
+        self.assertEqual(num_questions, 3)
        
 
     """
