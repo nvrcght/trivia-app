@@ -53,7 +53,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(data["questions"]), 10)  
-        self.assertEqual(set(data), {"currentCategory", "questions", "totalQuestions", "categories"})
+        self.assertEqual(set(data), {"current_category", "questions", "total_questions", "categories"})
 
     def test_get_questions_paginated(self):
         res = self.client().get('/questions?page=2')
@@ -66,7 +66,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.data)
         self.assertEqual(set(data), 
-        {"questions", "totalQuestions", "currentCategory"})
+        {"questions", "total_questions", "current_category"})
 
         self.assertEqual(len(data["questions"]), 4)
 

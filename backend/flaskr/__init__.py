@@ -46,23 +46,15 @@ def create_app(test_config=None):
         questions = Question.query.order_by(Question.id).all()[starting_question: starting_question + QUESTIONS_PER_PAGE]
         questions_data = [question.format() for question in questions]
         
-        res = {'totalQuestions': Question.query.count()}
-        res.update({"questions": questions_data, "categories": ["A", "B"], "currentCategory":"foo"})
+        res = {
+            "total_questions": Question.query.count(),
+            "questions": questions_data,
+            "categories": {cat.id: cat.type for cat in Category.query.all()},
+            "current_category": "foo" #TODO
+            }
+        
+        
         return jsonify(res)
-
-
-    """
-    @TODO:
-    Create an endpoint to handle GET requests for questions,
-    including pagination (every 10 questions).
-    This endpoint should return a list of questions,
-    number of total questions, current category, categories.
-
-    TEST: At this point, when you start the application
-    you should see questions and categories generated,
-    ten questions per page and pagination at the bottom of the screen for three pages.
-    Clicking on the page numbers should update the questions.
-    """
 
     """
     @TODO:
@@ -137,8 +129,8 @@ def create_app(test_config=None):
             questions = [q.format() for q in query]
             res = {
                 "questions": questions,
-                "totalQuestions": Question.query.count(),
-                "currentCategory": "History"
+                "total_questions": Question.query.count(),
+                "current_category": "History"
 
             }
             return jsonify(res)
