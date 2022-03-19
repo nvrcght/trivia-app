@@ -102,7 +102,37 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         num_questions = json.loads(res.data)["total_questions"]
         self.assertEqual(num_questions, 3)
-       
+
+    def test_play_quizz(self):
+        category_id = 4
+        quiz_category = {
+             "type": "History",
+             "id": category_id
+        }
+        start_data = {
+            "previous_questions": [],
+            "quiz_category": quiz_category,
+
+        }
+        res = self.client().post('/quizzes', data=json.dumps(start_data)) 
+        self.assertEqual(res.status_code, 200)
+        question = json.loads(res.data)["question"]
+        self.assertEqual(question["category"], category_id)
+
+    def test_play_quizz_error(self):
+        category_id = 4
+        quiz_category = {
+             "type": "History",
+             "id": category_id
+        }
+        start_data = {
+            "previous_questions": [],
+
+        }
+        res = self.client().post('/quizzes', data=json.dumps(start_data)) 
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(json.loads(res.data)["message"], "Malformed Data Request")
+
 
     """
     TODO
