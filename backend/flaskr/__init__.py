@@ -91,7 +91,7 @@ def create_app(test_config=None):
             question.rollback()
             return abort(500)
         
-    @app.route('/categories/<id>/questions')
+    @app.route('/categories/<id>/questions', methods=["GET"])
     def question_per_category(id):
         query = Question.query.filter(Question.category==id).all()
         if query:
@@ -122,8 +122,11 @@ def create_app(test_config=None):
 
         
         q = query.offset(rand_id).first()
+
+        # Ignore questions that were already asked within current quiz
         while q.id in previous_questions:
-            if len(previous_questions) == num_rows:
+            # All questions within the category were already asked
+            if len(previous_questions) == num_rows: 
                 res = {
                     "status": "error"
                 }
