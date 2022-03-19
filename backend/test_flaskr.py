@@ -40,6 +40,14 @@ class TriviaTestCase(unittest.TestCase):
             "category": 3
         } 
 
+    def _test_error_404(self, res):
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(json.loads(res.data)["message"], "Resource not found")
+
+    def _test_error_422(self, res):
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(json.loads(res.data)["message"], "Malformed Data Request")
+
     def test_get_categories(self):
         res = self.client().get('/categories')
         data = json.loads(res.data)
@@ -61,18 +69,9 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(len(data["questions"]), 9)  
 
-    def test_question_per_category(self):
-        res = self.client().get('/categories/4/questions')
-        self.assertEqual(res.status_code, 200)
-        data = json.loads(res.data)
-        self.assertEqual(set(data), 
-        {"questions", "total_questions", "current_category"})
-
-        self.assertEqual(len(data["questions"]), 4)
-
-    def test_question_per_category_question_not_found(self):
-        res = self.client().get('/categories/100/questions')  
-        #TODO
+    def test_get_questions_paginated_error(self):
+        res = self.client().get('/questions?page=1000')
+        self._test_error_404(res)
     
     def test_delete_question(self):
         """Creates a new record and tests delete question endpoint"""
@@ -87,6 +86,21 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIsNone(Question.query.get(q_id))
 
+    def test_delete_question_error(self):
+        res = self.client().delete(f'/questions/10000')
+        self._test_error_404(res)       
+
+    def test_search_question(self):
+        data = {"searchTerm": "Who"}
+        res = self.client().post('/search', data=json.dumps(data))  
+        self.assertEqual(res.status_code, 200)
+        num_questions = json.loads(res.data)["total_questions"]
+        self.assertEqual(num_questions, 3)
+
+    def test_search_question_error(self):
+        res = self.client().post('/search', data=json.dumps({}))
+        self._test_error_422(res)
+
     def test_add_question(self):
         data = json.dumps(TriviaTestCase._mock_question_data())
         res = self.client().post('/questions', data=data)
@@ -95,13 +109,23 @@ class TriviaTestCase(unittest.TestCase):
         self.assertIsInstance(inserted_question, Question)
         inserted_question.delete()
 
-    def test_search_question(self):
-        data = TriviaTestCase._mock_question_data()
-        data.update({"searchTerm": "Who"})
-        res = self.client().post('/questions', data=json.dumps(data))  
+    def test_add_question_error(self):
+        data = json.dumps({})
+        res = self.client().post('/questions', data=data)
+        self._test_error_422(res)
+
+    def test_question_per_category(self):
+        res = self.client().get('/categories/4/questions')
         self.assertEqual(res.status_code, 200)
-        num_questions = json.loads(res.data)["total_questions"]
-        self.assertEqual(num_questions, 3)
+        data = json.loads(res.data)
+        self.assertEqual(set(data), 
+        {"questions", "total_questions", "current_category"})
+
+        self.assertEqual(len(data["questions"]), 4)
+
+    def test_question_per_category_question_not_found(self):
+        res = self.client().get('/categories/100/questions')  
+        self._test_error_404(res)
 
     def test_play_quizz(self):
         category_id = 4
@@ -130,8 +154,7 @@ class TriviaTestCase(unittest.TestCase):
 
         }
         res = self.client().post('/quizzes', data=json.dumps(start_data)) 
-        self.assertEqual(res.status_code, 422)
-        self.assertEqual(json.loads(res.data)["message"], "Malformed Data Request")
+        self._test_error_422(res)
 
 
     """

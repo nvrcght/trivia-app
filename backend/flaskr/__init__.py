@@ -52,10 +52,9 @@ def create_app(test_config=None):
             "total_questions": Question.query.count(),
             "questions": questions_data,
             "categories": {cat.id: cat.type for cat in Category.query.all()},
-            "current_category": "foo" #TODO
+            "current_category": "" #Where is this used?
             }
-        
-        
+    
         return jsonify(res)
 
     @app.route('/questions/<id>', methods=["DELETE"])
@@ -66,12 +65,12 @@ def create_app(test_config=None):
                 question.delete()
                 return jsonify({"status": "success"})
             except:
-                return jsonify({"status": "failure"})
+                abort(500)
         else:
-            return jsonify({"status": "failure"})
+            abort(404)
 
-    @app.route('/questions', methods=["POST"])
-    def add_question():
+    @app.route('/search', methods=["POST"])
+    def search_question():
         data = json.loads(request.data)
         if "searchTerm" in data:
             term = data["searchTerm"]
@@ -79,17 +78,25 @@ def create_app(test_config=None):
             res = {
                 "questions": [q.format() for q in questions],
                 "total_questions": len(questions),
-                "current_category": 'FOO' #TODO
+                "current_category": "" #Where is this used?
             }
             return jsonify(res)
         else:
+            abort(422)
+
+    @app.route('/questions', methods=["POST"])
+    def add_question():
+        data = json.loads(request.data)
+        try:
             question = Question(**data)
-            try:
-                question.insert()
-                return jsonify({"status": "success", "question_id": f"{question.id}"})
-            except:
-                question.rollback()
-                return jsonify({"status": "failure"})
+        except:
+            abort(422)
+        try:
+            question.insert()
+            return jsonify({"status": "success", "question_id": f"{question.id}"})
+        except:
+            question.rollback()
+            return abort(500)
         
     @app.route('/categories/<id>/questions')
     def question_per_category(id):
@@ -99,18 +106,15 @@ def create_app(test_config=None):
             res = {
                 "questions": questions,
                 "total_questions": len(query),
-                "current_category": "History" #TODO
-
+                "current_category": "" #Where is this used?
             }
             return jsonify(res)
         else:
             abort(404)
 
-
     @app.route('/quizzes', methods=["POST"])
     def play_quiz():
         data = json.loads(request.data)
-        print(data)
         if "previous_questions" not in data or \
         "quiz_category" not in data or "id" not in data["quiz_category"]:
             abort(422)
@@ -153,6 +157,7 @@ def create_app(test_config=None):
             'success': False,
             'error': 422,
             'message': 'Malformed Data Request'
-        }), 422    
+        }), 422  
+
 
     return app
