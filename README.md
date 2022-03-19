@@ -199,6 +199,6 @@ Errors are returned as JSON objects in the following format:
 ```
 The API will return three error types when requests fail:
 
-404: Resource not found
-422: Malformed Data Request
-500: Internal Server Error
+404: Resource not found  
+422: Malformed Data Request  
+500: Internal Server Error  
