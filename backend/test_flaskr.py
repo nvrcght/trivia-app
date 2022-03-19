@@ -61,7 +61,8 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(data["questions"]), 10)  
-        self.assertEqual(set(data), {"current_category", "questions", "total_questions", "categories"})
+        self.assertEqual(set(data), 
+        {"current_category", "questions", "total_questions", "categories"})
 
     def test_get_questions_paginated(self):
         res = self.client().get('/questions?page=2')
@@ -84,6 +85,8 @@ class TriviaTestCase(unittest.TestCase):
 
         res = self.client().delete(f'/questions/{q_id}')
         self.assertEqual(res.status_code, 200)
+        
+        # Test that question can no longer be retrieved from the DB
         self.assertIsNone(Question.query.get(q_id))
 
     def test_delete_question_error(self):
@@ -105,6 +108,8 @@ class TriviaTestCase(unittest.TestCase):
         data = json.dumps(TriviaTestCase._mock_question_data())
         res = self.client().post('/questions', data=data)
         new_question_id = json.loads(res.data)["question_id"]
+
+        # Test that question can be retrieved from the DB
         inserted_question = Question.query.get(new_question_id)
         self.assertIsInstance(inserted_question, Question)
         inserted_question.delete()
