@@ -99,7 +99,7 @@ The [frontend](./frontend/README.md) directory contains a complete React fronten
 
 - Searches questions based on search term.
 - Parameters  
-    `searchTerm`
+    `searchTerm`  
         Specifies search term. Case insensitive.
 - Returns: List of questions that match the search term. Otherwise raises.
 
@@ -131,13 +131,13 @@ The [frontend](./frontend/README.md) directory contains a complete React fronten
 
 - Creates a new question.
 - Parameters  
-    `question`
+    `question`  
         Question to add.
-    `answer`
+    `answer`  
         Answer to the question.
-    `category`
+    `category`  
         Category to which the question belongs.
-    `difficulty`
+    `difficulty`  
         Difficulty of the question.
 - Returns: Successful response if delete was successful, otherwise raises.
 
@@ -177,9 +177,9 @@ The [frontend](./frontend/README.md) directory contains a complete React fronten
 
 - Fetches a list of questions given a category id.
 - Parameters  
-    `previous_questions`
+    `previous_questions`  
         List of previously generated questions played in current quiz.
-    `quiz_category`
+    `quiz_category`  
         Category to which the question belongs.
 - Returns: Questions for quiz category. Raises an error otherwise.
 
