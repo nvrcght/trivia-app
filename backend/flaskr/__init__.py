@@ -44,6 +44,8 @@ def create_app(test_config=None):
         page = request.args.get('page', 1, int)
         starting_question = (page-1) * QUESTIONS_PER_PAGE
         questions = Question.query.order_by(Question.id).all()[starting_question: starting_question + QUESTIONS_PER_PAGE]
+        if not questions:
+            abort(404)
         questions_data = [question.format() for question in questions]
         
         res = {
@@ -102,18 +104,17 @@ def create_app(test_config=None):
             }
             return jsonify(res)
         else:
-            # TODO add error handling
-            res = {
-                "error": "True"
-            }
-            return jsonify(res)
+            abort(404)
+
 
     @app.route('/quizzes', methods=["POST"])
     def play_quiz():
-        # TODO add tests
         data = json.loads(request.data)
         print(data)
-        
+        if "previous_questions" not in data or \
+        "quiz_category" not in data or "id" not in data["quiz_category"]:
+            abort(422)
+
         previous_questions = data["previous_questions"]
         quiz_category = data["quiz_category"]
         category = quiz_category["id"]
@@ -137,10 +138,21 @@ def create_app(test_config=None):
                 "question": q.format()
             }
         return jsonify(res)
-    """
-    @TODO:
-    Create error handlers for all expected errors
-    including 404 and 422.
-    """
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            'success': False,
+            'error': 404,
+            'message': 'Resource not found'
+        }), 404
+
+    @app.errorhandler(422)
+    def unprocessable(error):
+        return jsonify({
+            'success': False,
+            'error': 422,
+            'message': 'Malformed Data Request'
+        }), 422    
 
     return app
