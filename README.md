@@ -56,7 +56,7 @@ The [frontend](./frontend/README.md) directory contains a complete React fronten
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Parameters  
     `page`
-        Specifies which page of questions to return. Each page has maximum of 10 questions.
+        Specifies which page of questions to return. Each page has maximum of 10 questions.  
 - Returns: Questions per page if the page exists. Raises an error otherwise.
 
 ```json
@@ -100,7 +100,7 @@ The [frontend](./frontend/README.md) directory contains a complete React fronten
 - Searches questions based on search term.
 - Parameters  
     `searchTerm`  
-        Specifies search term. Case insensitive.
+        Specifies search term. Case insensitive.  
 - Returns: List of questions that match the search term. Otherwise raises.
 
 ```json
@@ -132,13 +132,13 @@ The [frontend](./frontend/README.md) directory contains a complete React fronten
 - Creates a new question.
 - Parameters  
     `question`  
-        Question to add.
+        Question to add.  
     `answer`  
-        Answer to the question.
+        Answer to the question.  
     `category`  
-        Category to which the question belongs.
+        Category to which the question belongs.  
     `difficulty`  
-        Difficulty of the question.
+        Difficulty of the question.  
 - Returns: Successful response if delete was successful, otherwise raises.
 
 
@@ -178,9 +178,9 @@ The [frontend](./frontend/README.md) directory contains a complete React fronten
 - Fetches a list of questions given a category id.
 - Parameters  
     `previous_questions`  
-        List of previously generated questions played in current quiz.
+        List of previously generated questions played in current quiz.  
     `quiz_category`  
-        Category to which the question belongs.
+        Category to which the question belongs.  
 - Returns: Questions for quiz category. Raises an error otherwise.
 
 ```json
