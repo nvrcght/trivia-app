@@ -192,7 +192,7 @@ The [frontend](./frontend/README.md) directory contains a complete React fronten
 Errors are returned as JSON objects in the following format:
 ```json
 {
-    "success": False, 
+    "success": false, 
     "error": 404,
     "message": "Resource not found"
 }
