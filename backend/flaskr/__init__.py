@@ -116,7 +116,11 @@ def create_app(test_config=None):
         quiz_category = data["quiz_category"]
         category = quiz_category["id"]
 
-        query = Question.query.filter(Question.category==category)
+        # Category ALL is mapped to 0
+        if category == 0: 
+            query = Question.query
+        else:
+            query = Question.query.filter(Question.category==category)
         num_rows = query.count()
         rand_id = random.randint(0, num_rows-1)
 
@@ -128,7 +132,7 @@ def create_app(test_config=None):
             # All questions within the category were already asked
             if len(previous_questions) == num_rows: 
                 res = {
-                    "status": "error"
+                    "status": "error"   
                 }
                 break
             rand_id = random.randint(0, num_rows-1)

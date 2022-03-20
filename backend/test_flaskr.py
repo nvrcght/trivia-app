@@ -148,6 +148,18 @@ class TriviaTestCase(unittest.TestCase):
         question = json.loads(res.data)["question"]
         self.assertEqual(question["category"], category_id)
 
+    def test_play_quizz_all_categories(self):
+        quiz_category = {
+             "id": 0
+        }
+        start_data = {
+            "previous_questions": [],
+            "quiz_category": quiz_category,
+
+        }
+        res = self.client().post('/quizzes', data=json.dumps(start_data)) 
+        self.assertEqual(res.status_code, 200)
+
     def test_play_quizz_error(self):
         category_id = 4
         quiz_category = {
@@ -161,11 +173,6 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().post('/quizzes', data=json.dumps(start_data)) 
         self._test_error_422(res)
 
-
-    """
-    TODO
-    Write at least one test for each test for successful operation and for expected errors.
-    """
 
 
 # Make the tests conveniently executable
